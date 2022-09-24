@@ -1,0 +1,37 @@
+{
+  "name": "uniecommercewebapp",
+  "version": "1.0.0",
+  "description": "E-commerce Web App",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "backend/node/server.js",
+    "dev": "backend/nodemon/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/irvinehawks/UniEcommerceWebApp.git"
+  },
+  "author": "Irvene Kwambana",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/irvinehawks/UniEcommerceWebApp/issues"
+  },
+  "homepage": "https://github.com/irvinehawks/UniEcommerceWebApp#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "color": "^4.2.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.2",
+    "express": "^4.18.1",
+    "express-async-handler": "^1.2.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.6.1",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "colors": "^1.4.0",
+    "nodemon": "^2.0.20"
+  }
+}
