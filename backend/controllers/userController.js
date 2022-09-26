@@ -43,32 +43,57 @@ const registerUser = asyncHandler(async(req, res) => {
     }
 })
 
-// @Desc   Authentiucating users, login functionality using POST http verb
+// @Desc   Authentiucating users, login or start session functionality using POST http verb
 // @Route  /login
 // @Access Public
 const authUser = asyncHandler(async(req, res) => {
+    const { email, password } = req.body
 
+    const user = await User.findOne({ email })
+
+    if(user && (await user.matchPassword(password))) {
+        res.status(201).json({
+            id: user.id,
+            username: user.username,
+            email: user.email
+        })
+    } else{
+        res.status(401)
+        throw new Error('Invalid email or pasword!')
+    }
 })
 
 // @Desc  Retrieving a list of users in the application using GET http verb
 // @Route /users
 // @Acess Private
 const getUsers = asyncHandler(async(req, res) => {
+    const users = await User.find({})
+
+    if(users){
+        res.status(200).json(users)
+    }
 
 })
 
 // @Desc Retrieving a single user using id, GET http Verb
-// @Route /user/:id
+// @Route /users/:id
 // @Acess Private
 const getUserById = asyncHandler(async(req, res) => {
+    const user = await User.findById(req.params.id).select('-password')
 
+    if(user) {
+        res.status(200).json(user)
+    } else{
+        res.status(404)
+        throw new Error('User not found!!')
+    }
 })
 
 // @Desc   Updating a single user using id, PUT http Verb
-// @Route  /user/:id
+// @Route  /users/:id
 // @Access Public
 const updateUserId = asyncHandler(async(req, res) => {
-
+    
 })
 
 // @Desc   Updating user profile using PUT http Verb
@@ -82,5 +107,12 @@ const updateUserProfile = asyncHandler(async(req, res) => {
 // @Route  /user/:id
 // @Access Private
 const deleteUser = asyncHandler(async(req, res) => {
+
+})
+
+// @Desc   User logging out or ending session.
+// @Route  /logout
+// @Access Public
+const userLogout = asyncHandler(async(req, res) => {
 
 })
