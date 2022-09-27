@@ -1,11 +1,11 @@
 import asyncHandler from 'express-async-handler'
 import User from '../models/userModel.js'
 
-// @Desc   Registering users into the application using POST http verb
-// @Route  /register
-// @Access Public
+//(1) @Desc   Registering users into the application using POST http verb
+//    @Route  POST /api/users/
+//    @Access Public
 const registerUser = asyncHandler(async(req, res) => {
-    const userExists = await User.findAll({email})
+    const userExists = await User.findAll({ email })
 
     //Assigning registration form variables to req.body
     const { username, email, password } = req.body
@@ -32,7 +32,7 @@ const registerUser = asyncHandler(async(req, res) => {
     //if user is created successfully, a success message should be returned
     if(userCreated){
         res.status(201).json({
-            id: userCreated.id,
+            _id: userCreated._id,
             username: userCreated.username,
             email: userCreated.email,
             password: userCreated.password
@@ -43,29 +43,29 @@ const registerUser = asyncHandler(async(req, res) => {
     }
 })
 
-// @Desc   Authentiucating users, login or start session functionality using POST http verb
-// @Route  /login
-// @Access Public
+//(2) @Desc   Authentiucating users, login or start session functionality using POST http verb
+//    @Route  POST /api/users/login
+//    @Access Public
 const authUser = asyncHandler(async(req, res) => {
-    const { email, password } = req.body
+    const { username, email, password } = req.body
+    const user = await User.find({ email })
 
-    const user = await User.findOne({ email })
-
-    if(user && (await user.matchPassword(password))) {
-        res.status(201).json({
-            id: user.id,
+    //if user is found, check if password entered matches the one already in the system.
+    if(user &&(user.matchPassword(password, username))) {
+        res.json({
+            _id: user._id,
             username: user.username,
             email: user.email
         })
     } else{
         res.status(401)
-        throw new Error('Invalid email or pasword!')
+        throw new Error('Invalid login credentials, Please try again with correct email or password.')
     }
 })
 
-// @Desc  Retrieving a list of users in the application using GET http verb
-// @Route /users
-// @Acess Private
+//(3) @Desc  Retrieving a list of users in the application using GET http verb
+//    @Route /api/users
+//    @Acess Private
 const getUsers = asyncHandler(async(req, res) => {
     const users = await User.find({})
 
@@ -75,11 +75,11 @@ const getUsers = asyncHandler(async(req, res) => {
 
 })
 
-// @Desc Retrieving a single user using id, GET http Verb
-// @Route /users/:id
-// @Acess Private
+//(4) @Desc Retrieving a single user using id, GET http Verb
+//    @Route /api/users/:id
+//    @Acess Private
 const getUserById = asyncHandler(async(req, res) => {
-    const user = await User.findById(req.params.id).select('-password')
+    const user = await User.findById(req.params._id).select('-password')
 
     if(user) {
         res.status(200).json(user)
@@ -89,30 +89,79 @@ const getUserById = asyncHandler(async(req, res) => {
     }
 })
 
-// @Desc   Updating a single user using id, PUT http Verb
-// @Route  /users/:id
-// @Access Public
+//(5) @Desc   Updating a single user using id, PUT http Verb
+//    @Route  PUT /api/users/:id
+//    @Access Public
 const updateUserId = asyncHandler(async(req, res) => {
-    
+    const user = await User.findById(req.params._id)
+
+
 })
 
-// @Desc   Updating user profile using PUT http Verb
-// @Route  /profile
-// @Access Public
+//(6) @Desc   Updating user profile using PUT http Verb
+//    @Route  /api/users/profile
+//    @Access Public
 const updateUserProfile = asyncHandler(async(req, res) => {
+    const user = await User.find(req.params._id)
 
+    if(user) {
+        user.username = req.body.username || user.username
+        user.email    = req.body.email     ||user.email
+        if(req.body.password) {
+            user.password = req.body.password
+        }
+
+        const updatedUser = user.save()
+        if(updatedUser) {
+            res.json({
+                _id: updatedUser._id,
+                username: updatedUser.username,
+                email: updatedUser.email
+            })
+        }
+    } else{
+        res.status(404)
+        throw new Error('User not Found!')
+    }
 })
 
-// @Desc   Deleting/ removing user from the application using DELETE http verb
-// @Route  /user/:id
-// @Access Private
+//(7) @Desc Get user profile data
+//    @Desc Get /api/users/profile
+//    @Desc Public
+const getUserProfile = asyncHandler(async(req, res) => {
+    const user = await User.findById(req.params._id)
+
+    if(user){
+        res.json({
+            _id: user._id,
+            username: user.username,
+            email: user.email
+        })
+    }
+})
+
+//(8) @Desc   Deleting/ removing user from the application using DELETE http verb
+//    @Route  /user/:id
+//    @Access Private
 const deleteUser = asyncHandler(async(req, res) => {
+    const user = await User.findById(req.params._id)
 
+    if(user) {
+        await user.remove()
+        res.json('User deleted successfully!')
+    } else{
+        res.status(404)
+        throw new Error('User not found')
+    }
 })
 
-// @Desc   User logging out or ending session.
-// @Route  /logout
-// @Access Public
-const userLogout = asyncHandler(async(req, res) => {
-
-})
+export {
+    registerUser,
+    authUser,
+    getUsers,
+    getUserById,
+    updateUserById,
+    updateUserProfile,
+    getUserProfile,
+    deleteUser
+}
